@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import When
 
 @testable import Remote
 
@@ -133,17 +132,17 @@ final class ImageOperation: OperationProtocol {
         self.request = Request(method: .get, endpoint: "/image/jpeg", params: nil, fields: ["hash": id], body: nil)
     }
 
-    public func execute(in service: ServiceProtocol) -> Promise<UIImage?> {
-        return service.execute(request, cacheKey: nil).then { response -> UIImage? in
-            guard let data = response.data else {
-                throw NetworkError.missingData("response with no data")
-            }
-
-            return UIImage(data: data)
+    public func execute(in service: ServiceProtocol) async throws -> UIImage? {
+        let response = try await service.execute(request, cacheKey: nil)
+        
+        guard let data = response.data else {
+            throw NetworkError.missingData("response with no data")
         }
+
+        return UIImage(data: data)
     }
 }
 
-class HttpBinService: Service {
+final class HttpBinService: Service {
 }
 

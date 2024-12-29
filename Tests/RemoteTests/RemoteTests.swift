@@ -7,9 +7,9 @@
 //
 
 import XCTest
-import When
 
 @testable import Remote
+
 
 final class RemoteTests: XCTestCase {
     let environment = Environment("test",
@@ -31,7 +31,7 @@ final class RemoteTests: XCTestCase {
         super.tearDown()
     }
 
-    func testGet() {
+    func testGet() async {
         let config = ServiceConfig(environment: environment)
 
         session.auth = .token(authToken)
@@ -40,31 +40,28 @@ final class RemoteTests: XCTestCase {
         let testValue = "654321  ://0&"
         let expect    = expectation(description: "Testing GET request")
 
-        GetOperation(user: testValue).execute(in: service)
-            .done { response in
-                var isSuccess = false
-
-                if let value = response.args?.hash {
-                    XCTAssertEqual(value, testValue)
-                    XCTAssertEqual(response.headers.authorization, "Bearer " + self.authToken)
-
-                    isSuccess = true
-                }
-
-                XCTAssertTrue(isSuccess)
-                expect.fulfill()
-            }.fail { error in
-                XCTFail(String(describing: error))
-        }
-
-        waitForExpectations(timeout: 10) { error in
-            if let error = error {
-                XCTFail("Expectation has timed out with error: \(error)")
+        do {
+            let response = try await GetOperation(user: testValue).execute(in: service)
+            
+            var isSuccess = false
+            
+            if let value = response.args?.hash {
+                XCTAssertEqual(value, testValue)
+                XCTAssertEqual(response.headers.authorization, "Bearer " + self.authToken)
+                
+                isSuccess = true
             }
+            
+            XCTAssertTrue(isSuccess)
+            expect.fulfill()
+        } catch (let error) {
+            XCTFail(String(describing: error))
         }
+
+        await fulfillment(of: [expect], timeout: 10)
     }
 
-    func testPost() {
+    func testPost() async {
         let config = ServiceConfig(environment: environment)
 
         session.auth = .token(authToken)
@@ -74,39 +71,35 @@ final class RemoteTests: XCTestCase {
         let pass      = "1234567890"
         let expect    = expectation(description: "Testing Post request")
 
-        PostOperation(user: login, password: pass).execute(in: service)
-            .done { response in
-                var isSuccess = false
-
-                if let value = response.args?.hash {
-                    XCTAssertEqual(value, login)
-
-                    if let loginValue = response.json?.login {
-                        XCTAssertEqual(loginValue, login)
-
-                        if let passValue = response.json?.pass {
-                            XCTAssertEqual(passValue, pass)
-                            XCTAssertEqual(response.headers.authorization, "Bearer " + self.authToken)
-
-                            isSuccess = true
-                        }
+        do {
+            let response = try await PostOperation(user: login, password: pass).execute(in: service)
+            var isSuccess = false
+            
+            if let value = response.args?.hash {
+                XCTAssertEqual(value, login)
+                
+                if let loginValue = response.json?.login {
+                    XCTAssertEqual(loginValue, login)
+                    
+                    if let passValue = response.json?.pass {
+                        XCTAssertEqual(passValue, pass)
+                        XCTAssertEqual(response.headers.authorization, "Bearer " + self.authToken)
+                        
+                        isSuccess = true
                     }
                 }
-
-                XCTAssertTrue(isSuccess)
-                expect.fulfill()
-            }.fail { error in
-                XCTFail(String(describing: error))
-        }
-
-        waitForExpectations(timeout: 20) { error in
-            if let error = error {
-                XCTFail("Expectation has timed out with error: \(error)")
             }
+            
+            XCTAssertTrue(isSuccess)
+            expect.fulfill()
+        } catch (let error) {
+            XCTFail(String(describing: error))
         }
+        
+        await fulfillment(of: [expect], timeout: 10)
     }
 
-    func testPostMultipart() {
+    func testPostMultipart() async {
         let config = ServiceConfig(environment: environment)
 
         session.auth = .token(authToken)
@@ -116,47 +109,43 @@ final class RemoteTests: XCTestCase {
         let pass      = "1234567890"
         let expect    = expectation(description: "Testing Post Multipart request")
 
-        PostMultipartOperation(user: login, password: pass).execute(in: service)
-            .done { response in
-                var isSuccess = false
+        do {
+            let response = try await PostMultipartOperation(user: login, password: pass).execute(in: service)
+            var isSuccess = false
 
-                if let value = response.args?.hash {
-                    XCTAssertEqual(value, login)
+            if let value = response.args?.hash {
+                XCTAssertEqual(value, login)
 
-                    if let loginValue = response.form?.login {
-                        XCTAssertEqual(loginValue, login)
+                if let loginValue = response.form?.login {
+                    XCTAssertEqual(loginValue, login)
 
-                        if let passValue = response.form?.pass {
-                            XCTAssertEqual(passValue, pass)
-                            XCTAssertEqual(response.headers.authorization, "Bearer " + self.authToken)
+                    if let passValue = response.form?.pass {
+                        XCTAssertEqual(passValue, pass)
+                        XCTAssertEqual(response.headers.authorization, "Bearer " + self.authToken)
 
-                            if let dataValue = response.form?.data {
-                                XCTAssertEqual(dataValue, login + pass)
+                        if let dataValue = response.form?.data {
+                            XCTAssertEqual(dataValue, login + pass)
 
-                                if let zipValue = response.form?.zip {
-                                    XCTAssertEqual(zipValue, pass + login)
+                            if let zipValue = response.form?.zip {
+                                XCTAssertEqual(zipValue, pass + login)
 
-                                    isSuccess = true
-                                }
+                                isSuccess = true
                             }
                         }
                     }
                 }
-
-                XCTAssertTrue(isSuccess)
-                expect.fulfill()
-            }.fail { error in
-                XCTFail(String(describing: error))
-        }
-
-        waitForExpectations(timeout: 20) { error in
-            if let error = error {
-                XCTFail("Expectation has timed out with error: \(error)")
             }
+
+            XCTAssertTrue(isSuccess)
+            expect.fulfill()
+        } catch (let error) {
+            XCTFail(String(describing: error))
         }
+
+        await fulfillment(of: [expect], timeout: 20)
     }
 
-    func testImage() {
+    func testImage() async {
         let config = ServiceConfig(environment: environment)
 
         session.auth = .token(authToken)
@@ -165,61 +154,53 @@ final class RemoteTests: XCTestCase {
         let testValue = "654321"
         let expect    = expectation(description: "Testing GET Image request")
 
-        ImageOperation(id: testValue).execute(in: service)
-            .done { image in
-                var isSuccess = false
+        do {
+            let image = try await ImageOperation(id: testValue).execute(in: service)
+            var isSuccess = false
 
-                guard let image = image else {
-                    XCTFail("No image")
+            guard let image = image else {
+                XCTFail("No image")
 
-                    return
-                }
-
-                if image.size.width == 239 && image.size.height == 178 {
-                    isSuccess = true
-                }
-
-                XCTAssertTrue(isSuccess)
-                expect.fulfill()
-            }.fail { error in
-                XCTFail(String(describing: error))
-        }
-
-        waitForExpectations(timeout: 10) { error in
-            if let error = error {
-                XCTFail("Expectation has timed out with error: \(error)")
+                return
             }
+
+            if image.size.width == 239 && image.size.height == 178 {
+                isSuccess = true
+            }
+
+            XCTAssertTrue(isSuccess)
+            expect.fulfill()
+        } catch (let error) {
+            XCTFail(String(describing: error))
         }
+
+        await fulfillment(of: [expect], timeout: 10)
     }
 
-    func testGetLocalJSON() {
+    func testGetLocalJSON() async {
         let config = ServiceConfig(environment: environment)
 
         let service   = HttpBinService(config, session: MockURLSession())
         let testValue = "654321"
         let expect    = expectation(description: "Testing GET request")
 
-        GetOperation(user: testValue).execute(in: service)
-            .done { response in
-                var isSuccess = false
+        do {
+            let response = try await GetOperation(user: testValue).execute(in: service)
+            var isSuccess = false
 
-                if let value = response.args?.hash {
-                    XCTAssertEqual(value, testValue)
-                    XCTAssertEqual(response.headers.authorization, "Bearer " + self.authToken)
+            if let value = response.args?.hash {
+                XCTAssertEqual(value, testValue)
+                XCTAssertEqual(response.headers.authorization, "Bearer " + self.authToken)
 
-                    isSuccess = true
-                }
-
-                XCTAssertTrue(isSuccess)
-                expect.fulfill()
-            }.fail { error in
-                XCTFail(String(describing: error))
-        }
-
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                XCTFail("Expectation has timed out with error: \(error)")
+                isSuccess = true
             }
+
+            XCTAssertTrue(isSuccess)
+            expect.fulfill()
+        } catch (let error) {
+            XCTFail(String(describing: error))
         }
+
+        await fulfillment(of: [expect], timeout: 3)
     }
 }

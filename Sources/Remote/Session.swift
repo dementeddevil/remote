@@ -50,7 +50,7 @@ extension URLSession: URLSessionProtocol {
 public class Session: URLSessionProtocol {
     public var auth: SessionAuth?
     
-    @MainActor public static let `default`: Session = Session()
+    nonisolated(unsafe) public static let `default`: Session = Session()
     
     private let session: URLSession
     

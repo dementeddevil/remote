@@ -22,7 +22,14 @@ let package = Package(
             name: "Remote"),
         .testTarget(
             name: "RemoteTests",
-            dependencies: ["Remote"]
+            dependencies: ["Remote"],
+            resources: [
+                .process("Resources")
+            ]
         ),
+    ],
+    swiftLanguageModes: [
+        .v5,
+        .v6
     ]
 )
