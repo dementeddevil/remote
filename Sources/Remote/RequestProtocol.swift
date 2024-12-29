@@ -8,10 +8,10 @@
 import Foundation
 
 /// Define the parameter's dictionary
-public typealias ParametersDict = [String : Any?]
+public typealias ParametersDictionary = [String: Any?]
 
 /// Define the header's dictionary
-public typealias HeadersDict = [String: String]
+public typealias HeadersDictionary = [String: String]
 
 /// This is the base class for a Request
 public protocol RequestProtocol {
@@ -26,19 +26,19 @@ public protocol RequestProtocol {
     /// `null` value wil be ignored automatically; all values must be also represented as `String`,
     /// otherwise will be ignored.
     /// For example `{ "p1" : "abc", "p2" : null, "p3" : 3 }` will be `.../endpoint?p1=abc&p3=3`
-    var fields: ParametersDict? { get set }
+    var fields: ParametersDictionary? { get set }
 
     /// Parameters used to compose the endpoint url.
     /// Value is a dictionary with keys to replace; `null` values are ignored.
     /// Example: `/v2/articles/{table_id}/{article_id}/` will be composed by replacing `{table_id}` and `{article_id]`
     /// with the values passed here.
-    var urlParams: ParametersDict? { get set }
+    var urlParams: ParametersDictionary? { get set }
 
     /// THe body of the request. Will be encoded based upon the
     var body: RequestBody? { get set }
 
     /// Optional headers to append to the request.
-    var headers: HeadersDict? { get set }
+    var headers: HeadersDictionary? { get set }
 
     /// This is the default cache policy used for this request.
     /// If not set related `Service` policy is used.
@@ -56,7 +56,7 @@ public protocol RequestProtocol {
     ///
     /// - Parameter service: service in which the request should be used
     /// - Returns: ParametersDict
-    func headers(in service: ServiceProtocol) -> HeadersDict
+    func headers(in service: ServiceProtocol) -> HeadersDictionary
 
     /// Return the full url of the request when executed in a specific service
     ///
@@ -74,8 +74,8 @@ public protocol RequestProtocol {
 
 // MARK: - Provide default implementation of the Request
 public extension RequestProtocol {
-    func headers(in service: ServiceProtocol) -> HeadersDict {
-        var params: HeadersDict = service.headers // initial set is composed by service's current headers
+    func headers(in service: ServiceProtocol) -> HeadersDictionary {
+        var params: HeadersDictionary = service.headers // initial set is composed by service's current headers
         // append (and replace if needed) with request's headers
         self.headers?.forEach({ k,v in params[k] = v })
 
@@ -108,7 +108,7 @@ public extension RequestProtocol {
         return url
     }
 
-    public func urlRequest(in service: ServiceProtocol) throws -> URLRequest {
+    func urlRequest(in service: ServiceProtocol) throws -> URLRequest {
         // Compose default full url
         let requestURL = try self.url(in: service)
         // Setup cache policy, timeout and headers of the request
@@ -172,7 +172,7 @@ fileprivate extension String {
         return finalString
     }
 
-    func stringByAdding(urlEncodedFields fields: ParametersDict?) throws -> String {
+    func stringByAdding(urlEncodedFields fields: ParametersDictionary?) throws -> String {
         guard let f = fields else { return self }
 
         return try f.urlEncodedString(base: self)

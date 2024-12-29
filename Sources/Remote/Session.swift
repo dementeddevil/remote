@@ -8,12 +8,7 @@
 
 import Foundation
 
-public protocol URLSessionDataTaskProtocol {
-    func resume()
-    func cancel()
-}
-
-public typealias DataTaskResult = (Data?, URLResponse?, Error?) -> Void
+public typealias DataResult = (Data?, URLResponse?)
 
 public enum SessionAuth {
     case token(String)
@@ -21,7 +16,7 @@ public enum SessionAuth {
 }
 
 public protocol URLSessionProtocol {
-    func createTask(with request: URLRequest, completionHandler: @escaping DataTaskResult) -> URLSessionDataTaskProtocol
+    func create(for request: URLRequest) async throws -> DataResult
     func validSessionAuth() -> SessionAuth?
     func updateSessionWith(auth: SessionAuth?)
     func updateCredential(to credential: URLCredential, for host: String, port: Int)
@@ -37,11 +32,9 @@ extension URLSessionProtocol {
     }
 }
 
-extension URLSessionDataTask: URLSessionDataTaskProtocol { }
-
 extension URLSession: URLSessionProtocol {
-    public func createTask(with request: URLRequest, completionHandler: @escaping DataTaskResult) -> URLSessionDataTaskProtocol {
-        return dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTaskProtocol
+    public func create(for request: URLRequest) async throws -> DataResult {
+        return try await data(for: request)
     }
     
     public func updateCredential(to credential: URLCredential, for host: String, port: Int) {
@@ -57,12 +50,12 @@ extension URLSession: URLSessionProtocol {
 public class Session: URLSessionProtocol {
     public var auth: SessionAuth?
     
-    public static let `default`: Session = Session()
+    @MainActor public static let `default`: Session = Session()
     
     private let session: URLSession
     
-    public func createTask(with request: URLRequest, completionHandler: @escaping DataTaskResult) -> URLSessionDataTaskProtocol {
-        return session.dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTaskProtocol
+    public func create(for request: URLRequest) async throws -> DataResult {
+        return try await session.data(for: request)
     }
     
     public func validSessionAuth() -> SessionAuth? {

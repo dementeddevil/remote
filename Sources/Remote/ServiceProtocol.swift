@@ -7,9 +7,8 @@
 //
 
 import Foundation
-import When
 
-public protocol ServiceProtocol: class {
+public protocol ServiceProtocol: AnyObject {
 
     /// This is the configuration used by the service
     var configuration: ServiceConfig { get }
@@ -18,7 +17,7 @@ public protocol ServiceProtocol: class {
     /// to any Request made using the service. You can replace or remove it
     /// by overriding the `willPerform()` func of the `Request`.
     /// Session headers initially also contains global headers set by related server configuration.
-    var headers: HeadersDict { get set }
+    var headers: HeadersDictionary { get set }
 
     /// This is session context (URLSession / MockSession)
     var session: URLSessionProtocol { get }
@@ -32,7 +31,7 @@ public protocol ServiceProtocol: class {
     ///
     /// - Parameter request: request to execute
     /// - Returns: Promise with response
-    func execute(_ request: RequestProtocol?, cacheKey: String?) -> Promise<ResponseProtocol>
+    func execute(_ request: RequestProtocol?, cacheKey: String?) async throws -> ResponseProtocol
 
     /// Updates existing ssl pinning credential
     ///

@@ -8,13 +8,13 @@
 
 import Foundation
 
-open class Sniffer: URLProtocol {
+open class Sniffer: URLProtocol, @unchecked Sendable {
     enum Keys {
         static let request = "Sniffer.request"
         static let duration = "Sniffer.duration"
     }
     
-    static public var onLogger: ((String) -> Void)? // If the handler is registered, the log inside the Sniffer will not be output.
+    static nonisolated(unsafe) public var onLogger: ((String) -> Void)? // If the handler is registered, the log inside the Sniffer will not be output.
     
     fileprivate var session: URLSession!
     fileprivate var urlTask: URLSessionDataTask?
@@ -22,7 +22,7 @@ open class Sniffer: URLProtocol {
     fileprivate var urlResponse: HTTPURLResponse?
     fileprivate var data: Data?
     
-    private static var bodyDeserializers: [String: BodyDeserializer] = [
+    nonisolated(unsafe) private static var bodyDeserializers: [String: BodyDeserializer] = [
         "application/x-www-form-urlencoded": PlainTextBodyDeserializer(),
         "*/json": JSONBodyDeserializer(),
         "image/*": UIImageBodyDeserializer(),

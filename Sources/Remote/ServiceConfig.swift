@@ -14,10 +14,10 @@ public final class ServiceConfig: CustomStringConvertible, Equatable {
     // This is the environment configuration
     private(set) var environment: Environment
     
-    private var internalHeaders: HeadersDict = [:]
+    private var internalHeaders: HeadersDictionary = [:]
     
 	/// These are the global headers which must be included in each session of the service
-    public var headers: HeadersDict {
+    public var headers: HeadersDictionary {
         set {
             internalHeaders = newValue
         }

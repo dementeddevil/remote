@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import When
 
 /// Operation Protocol
 public protocol OperationProtocol {
@@ -21,7 +20,7 @@ public protocol OperationProtocol {
     /// - Parameters:
     ///   - service: service to use
     /// - Returns: Promise
-    func execute(in service: ServiceProtocol) -> Promise<T>
+    func execute(in service: ServiceProtocol) async throws -> T
 
 }
 

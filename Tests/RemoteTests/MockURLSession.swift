@@ -53,7 +53,7 @@ final class MockURLSession: URLSessionProtocol {
 
     }
 
-    func createTask(with request: URLRequest, completionHandler: @escaping DataTaskResult) -> URLSessionDataTaskProtocol {
+    func create(for request: URLRequest, completionHandler: @escaping DataTaskResult) -> URLSessionDataTaskProtocol {
         return MockURLTask(file: "get", handler: completionHandler)
     }
 }

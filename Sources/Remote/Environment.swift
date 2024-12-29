@@ -17,7 +17,7 @@ public struct Environment {
     
     /// This is the list of common headers which will be part of each Request
     /// Some headers value maybe overwritten by Request's own headers
-    public var headers: HeadersDict = [:]
+    public var headers: HeadersDictionary = [:]
     
     /// Cache policy
     public var cachePolicy: URLRequest.CachePolicy = .reloadIgnoringLocalAndRemoteCacheData
@@ -38,7 +38,7 @@ public struct Environment {
     ///   - name:    name of the environment
     ///   - host:    base url
     ///   - headers: default http headers
-    public init(_ name: String, url: URL, headers: HeadersDict) {
+    public init(_ name: String, url: URL, headers: HeadersDictionary) {
         self.name    = name
         self.url     = url
         self.headers = headers
@@ -57,7 +57,7 @@ public extension Environment {
     }
     
     /// Initialize a new service configuration by looking at paramters
-    public static func load() -> Environment {
+    static func load() -> Environment {
         return EnvironmentType.config.environment
     }
 }
@@ -108,10 +108,10 @@ public enum EnvironmentType: String {
                 return defaultEnv
             }
             
-            var headers: HeadersDict = defaultHeaders
+            var headers: HeadersDictionary = defaultHeaders
 
             // Attempt to read a fixed list of headers from configuration
-            if let fixedHeaders = appCfg[EnvironmentType.Config.headers.rawValue] as? HeadersDict {
+            if let fixedHeaders = appCfg[EnvironmentType.Config.headers.rawValue] as? HeadersDictionary {
                 headers = fixedHeaders
             }
 

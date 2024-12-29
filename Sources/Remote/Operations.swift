@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import When
 
 /// Model Operation, return a response as Decodable Model
 open class ModelOperation<Output: Decodable>: OperationProtocol {
@@ -24,20 +23,18 @@ open class ModelOperation<Output: Decodable>: OperationProtocol {
     /// - Parameters:
     ///   - service: service to use
     /// - Returns: Promise
-    public func execute(in service: ServiceProtocol) -> Promise<Output> {
+    public func execute(in service: ServiceProtocol) async throws -> Output {
         let decoder = JSONDecoder()
         
-        return service.execute(request, cacheKey: "")
-            .then { response -> Output in
-                guard let data = response.data else {
-                    throw NetworkError.missingData("response with no data")
-                }
-                
-                do {
-                    return try decoder.decode(Output.self, from: data)
-                } catch let error {
-                    throw NetworkError.failedToDecode(error.localizedDescription)
-                }
+        let response = try await service.execute(request, cacheKey: "")
+        guard let data = response.data else {
+            throw NetworkError.missingData("response with no data")
+        }
+        
+        do {
+            return try decoder.decode(Output.self, from: data)
+        } catch let error {
+            throw NetworkError.failedToDecode(error.localizedDescription)
         }
     }
 }

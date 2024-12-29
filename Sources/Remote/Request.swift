@@ -100,7 +100,7 @@ public struct RequestBody {
     ///   - data: a string of encodable data as url
     ///   - encoding: encoding type to transform the string into data
     /// - Returns: RequestBody
-    public static func urlEncoded(_ data: ParametersDict, encoding: String.Encoding? = .utf8) -> RequestBody {
+    public static func urlEncoded(_ data: ParametersDictionary, encoding: String.Encoding? = .utf8) -> RequestBody {
         return RequestBody(data, as: .urlEncoded(encoding))
     }
 
@@ -155,7 +155,7 @@ public struct RequestBody {
         case .json:
             return try JSONSerialization.data(withJSONObject: self.data, options: .prettyPrinted)
         case .urlEncoded(let encoding):
-            let encodedString = try (self.data as! ParametersDict).urlEncodedString()
+            let encodedString = try (self.data as! ParametersDictionary).urlEncodedString()
             guard let data = encodedString.data(using: encoding ?? .utf8) else {
                 throw NetworkError.dataIsNotEncodable(encodedString)
             }
@@ -215,13 +215,13 @@ public class Request: RequestProtocol, CustomStringConvertible {
     public var method: RequestMethod?
 
     /// Fields of the request
-    public var fields: ParametersDict?
+    public var fields: ParametersDictionary?
 
     /// URL of the request
-    public var urlParams: ParametersDict?
+    public var urlParams: ParametersDictionary?
 
     /// Headers of the request
-    public var headers: HeadersDict?
+    public var headers: HeadersDictionary?
 
     /// Cache policy
     public var cachePolicy: URLRequest.CachePolicy?
@@ -240,7 +240,7 @@ public class Request: RequestProtocol, CustomStringConvertible {
     ///   - fields: fields to append inside the url
     ///   - body: body to set
     public init(method: RequestMethod = .get, endpoint: String = "",
-                params: ParametersDict? = nil, fields: ParametersDict? = nil,
+                params: ParametersDictionary? = nil, fields: ParametersDictionary? = nil,
                 body: RequestBody? = nil, isCacheable: Bool = false) {
         self.method      = method
         self.endpoint    = endpoint
