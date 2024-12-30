@@ -38,9 +38,12 @@ extension URLSession: URLSessionProtocol {
     }
     
     public func updateCredential(to credential: URLCredential, for host: String, port: Int) {
-        let protectionSpace = URLProtectionSpace(host: host, port: port, protocol: "https",
-                                                 realm: nil,
-                                                 authenticationMethod: NSURLAuthenticationMethodClientCertificate)
+        let protectionSpace = URLProtectionSpace(
+            host: host,
+            port: port,
+            protocol: "https",
+            realm: nil,
+            authenticationMethod: NSURLAuthenticationMethodClientCertificate)
         
         URLCredentialStorage.shared.set(credential, for: protectionSpace)
         configuration.urlCredentialStorage?.set(credential, for: protectionSpace)
